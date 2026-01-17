@@ -1,0 +1,16 @@
+name: MMHSDungeons
+main: com.mmhs.dungeons.DungeonsPlugin
+version: 1.0
+api-version: 1.21
+authors:
+  - mmhs
+commands:
+  dungeon:
+    description: Manage simple dungeons
+    usage: /dungeon <create|addspawn|start|stop|list>
+    permission: dungeons.use
+permissions:
+  dungeons.use:
+    description: Allows using the dungeon command
+    default: op
+

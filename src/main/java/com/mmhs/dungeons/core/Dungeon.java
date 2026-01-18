@@ -1,11 +1,11 @@
-package com.mmhs.dungeons;
-
-import org.bukkit.Location;
+package com.mmhs.dungeons.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+
+import org.bukkit.Location;
 
 public class Dungeon {
     private final String name;

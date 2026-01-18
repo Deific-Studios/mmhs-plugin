@@ -1,14 +1,15 @@
 package com.mmhs.dungeons.commands;
 
-import com.mmhs.dungeons.DungeonsPlugin;
-import com.mmhs.dungeons.Dungeon;
-import com.mmhs.dungeons.DungeonManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import com.mmhs.dungeons.core.Dungeon;
+import com.mmhs.dungeons.core.DungeonManager;
+import com.mmhs.dungeons.core.DungeonsPlugin;
 
 public class DungeonCommand implements CommandExecutor {
     private final DungeonsPlugin plugin;
@@ -31,7 +32,7 @@ public class DungeonCommand implements CommandExecutor {
         }
         String sub = args[0].toLowerCase();
         switch (sub) {
-            case "create": {
+            case "create" -> {
                 if (args.length < 2) { send(sender, "Usage: /dungeon create <name>"); return true; }
                 String name = args[1];
                 Dungeon d = manager.createDungeon(name);
@@ -39,7 +40,7 @@ public class DungeonCommand implements CommandExecutor {
                 else { send(sender, "Created dungeon '" + name + "'."); manager.saveAll(); }
                 return true;
             }
-            case "addspawn": {
+            case "addspawn" -> {
                 if (!(sender instanceof Player)) { send(sender, "Only players can add spawns."); return true; }
                 if (args.length < 2) { send(sender, "Usage: /dungeon addspawn <name>"); return true; }
                 String name = args[1];
@@ -52,21 +53,21 @@ public class DungeonCommand implements CommandExecutor {
                 send(sender, "Added spawn for dungeon '" + name + "' at your location.");
                 return true;
             }
-            case "start": {
+            case "start" -> {
                 if (args.length < 2) { send(sender, "Usage: /dungeon start <name>"); return true; }
                 String name = args[1];
                 boolean ok = manager.startDungeon(name);
                 if (!ok) send(sender, "Could not start dungeon (missing/empty/already running)."); else send(sender, "Dungeon started.");
                 return true;
             }
-            case "stop": {
+            case "stop" -> {
                 if (args.length < 2) { send(sender, "Usage: /dungeon stop <name>"); return true; }
                 String name = args[1];
                 boolean ok = manager.stopDungeon(name);
                 if (!ok) send(sender, "Dungeon not running."); else send(sender, "Dungeon stopped.");
                 return true;
             }
-            case "list": {
+            case "list" -> {
                 StringBuilder sb = new StringBuilder();
                 sb.append("Dungeons: ");
                 boolean first = true;
@@ -77,7 +78,7 @@ public class DungeonCommand implements CommandExecutor {
                 send(sender, sb.toString());
                 return true;
             }
-            default: {
+            default -> {
                 send(sender, "Unknown subcommand.");
                 return true;
             }

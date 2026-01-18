@@ -1,24 +1,23 @@
-name: MMHSDungeons
-main: com.mmhs.dungeons.core.DungeonsPlugin
-version: 1.1
-api-version: 1.21
-authors:
-  - mmhs
+name: DungeonsPlugin
+version: '1.0.0'
+main: com.mmhs.dungeons.DungeonsPlugin
+api-version: '1.21'
+author: MMHS
+description: A Minecraft Paper plugin for dungeons
 
 commands:
   dungeon:
-    description: Manage simple dungeons
-    usage: /dungeon <create|addspawn|start|stop|list>
+    description: Manage dungeons
+    usage: /dungeon <create|addspawn|start|stop|list> [args]
     permission: dungeons.use
+    aliases: [dg, dun]
   ditems:
-    description: Gives dungeon weapons
+    description: Gives dungeon weapons, test command
     usage: /ditems
-    permission: dungeons.admin
+    permission: op
 
 permissions:
   dungeons.use:
-    description: Allows using the dungeon command
+    description: Allows use of dungeon commands
     default: op
-  dungeons.admin:
-    description: Allows using /ditems
-    default: op
+

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\items\DungeonItems.java
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\core\DungeonManager.java
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\core\DungeonsPlugin.java
@@ -7,3 +8,9 @@ C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\commands\Du
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\items\CrownManager.java
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\items\DungeonItemListener.java
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\items\CrownInventoryHolder.java
+=======
+C:\Users\dines\Downloads\mmhs-plugin\src\main\java\com\mmhs\dungeons\commands\DungeonCommand.java
+C:\Users\dines\Downloads\mmhs-plugin\src\main\java\com\mmhs\dungeons\Dungeon.java
+C:\Users\dines\Downloads\mmhs-plugin\src\main\java\com\mmhs\dungeons\DungeonManager.java
+C:\Users\dines\Downloads\mmhs-plugin\src\main\java\com\mmhs\dungeons\DungeonsPlugin.java
+>>>>>>> c5750d17897cade97751605b013c512f3d4a54df

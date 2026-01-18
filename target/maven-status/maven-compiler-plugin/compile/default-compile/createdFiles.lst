@@ -1,1 +1,9 @@
+<<<<<<< HEAD
 com\mmhs\dungeons\items\CrownManager$1.class
+=======
+com\mmhs\dungeons\DungeonManager.class
+com\mmhs\dungeons\commands\DungeonCommand.class
+com\mmhs\dungeons\Dungeon.class
+com\mmhs\dungeons\DungeonManager$1.class
+com\mmhs\dungeons\DungeonsPlugin.class
+>>>>>>> c5750d17897cade97751605b013c512f3d4a54df

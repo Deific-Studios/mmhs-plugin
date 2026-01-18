@@ -1,0 +1,5 @@
+com\mmhs\dungeons\DungeonManager.class
+com\mmhs\dungeons\commands\DungeonCommand.class
+com\mmhs\dungeons\Dungeon.class
+com\mmhs\dungeons\DungeonManager$1.class
+com\mmhs\dungeons\DungeonsPlugin.class

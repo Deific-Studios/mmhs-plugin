@@ -1,6 +1,6 @@
 package com.mmhs.dungeons;
 
-import org.bukkit.Bukkit;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -81,9 +81,9 @@ public class DungeonManager {
         if (activeRuns.containsKey(d.getName().toLowerCase())) return false; // already running
         if (d.getSpawns().isEmpty()) return false;
 
+        final int maxWaves = 5;
         BukkitRunnable run = new BukkitRunnable() {
             private int wave = 0;
-            private final int maxWaves = 5;
 
             @Override
             public void run() {
@@ -100,7 +100,7 @@ public class DungeonManager {
                     if (w == null) continue;
                     for (int i = 0; i < Math.min(3 + wave, 8); i++) {
                         LivingEntity ent = (LivingEntity) w.spawnEntity(s, EntityType.ZOMBIE);
-                        ent.setCustomName("Dungeon Mob");
+                        ent.customName(Component.text("Dungeon Mob"));
                         ent.setCustomNameVisible(false);
                     }
                 }
@@ -120,4 +120,3 @@ public class DungeonManager {
         return false;
     }
 }
-

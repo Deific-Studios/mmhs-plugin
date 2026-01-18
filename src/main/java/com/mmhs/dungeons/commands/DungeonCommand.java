@@ -1,87 +1,136 @@
 package com.mmhs.dungeons.commands;
 
-import com.mmhs.dungeons.DungeonsPlugin;
 import com.mmhs.dungeons.Dungeon;
 import com.mmhs.dungeons.DungeonManager;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-public class DungeonCommand implements CommandExecutor {
-    private final DungeonsPlugin plugin;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class DungeonCommand implements CommandExecutor, TabCompleter {
     private final DungeonManager manager;
 
-    public DungeonCommand(DungeonsPlugin plugin, DungeonManager manager) {
-        this.plugin = plugin;
+    public DungeonCommand(DungeonManager manager) {
         this.manager = manager;
-    }
-
-    private void send(CommandSender s, String msg) {
-        s.sendMessage(ChatColor.GREEN + "[Dungeons] " + ChatColor.RESET + msg);
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            send(sender, "Usage: /dungeon <create|addspawn|start|stop|list>");
+            sendHelp(sender);
             return true;
         }
-        String sub = args[0].toLowerCase();
-        switch (sub) {
-            case "create": {
-                if (args.length < 2) { send(sender, "Usage: /dungeon create <name>"); return true; }
-                String name = args[1];
-                Dungeon d = manager.createDungeon(name);
-                if (d == null) { send(sender, "A dungeon with that name already exists."); }
-                else { send(sender, "Created dungeon '" + name + "'."); manager.saveAll(); }
-                return true;
-            }
-            case "addspawn": {
-                if (!(sender instanceof Player)) { send(sender, "Only players can add spawns."); return true; }
-                if (args.length < 2) { send(sender, "Usage: /dungeon addspawn <name>"); return true; }
-                String name = args[1];
-                Dungeon d = manager.getDungeon(name);
-                if (d == null) { send(sender, "No such dungeon."); return true; }
-                Player p = (Player) sender;
-                Location loc = p.getLocation();
-                manager.addSpawn(name, loc);
-                manager.saveAll();
-                send(sender, "Added spawn for dungeon '" + name + "' at your location.");
-                return true;
-            }
-            case "start": {
-                if (args.length < 2) { send(sender, "Usage: /dungeon start <name>"); return true; }
-                String name = args[1];
-                boolean ok = manager.startDungeon(name);
-                if (!ok) send(sender, "Could not start dungeon (missing/empty/already running)."); else send(sender, "Dungeon started.");
-                return true;
-            }
-            case "stop": {
-                if (args.length < 2) { send(sender, "Usage: /dungeon stop <name>"); return true; }
-                String name = args[1];
-                boolean ok = manager.stopDungeon(name);
-                if (!ok) send(sender, "Dungeon not running."); else send(sender, "Dungeon stopped.");
-                return true;
-            }
-            case "list": {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Dungeons: ");
-                boolean first = true;
-                for (Dungeon d : manager.listDungeons()) {
-                    if (!first) sb.append(", "); first = false;
-                    sb.append(d.getName());
+
+        String subCmd = args[0].toLowerCase();
+
+        switch (subCmd) {
+            case "create":
+                if (args.length < 2) {
+                    sender.sendMessage(Component.text("Usage: /dungeon create <name>", NamedTextColor.RED));
+                    return true;
                 }
-                send(sender, sb.toString());
-                return true;
-            }
-            default: {
-                send(sender, "Unknown subcommand.");
-                return true;
-            }
+                Dungeon created = manager.createDungeon(args[1]);
+                if (created == null) {
+                    sender.sendMessage(Component.text("Dungeon already exists!", NamedTextColor.RED));
+                } else {
+                    sender.sendMessage(Component.text("Dungeon '" + args[1] + "' created!", NamedTextColor.GREEN));
+                    manager.saveAll();
+                }
+                break;
+
+            case "addspawn":
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(Component.text("Only players can use this command!", NamedTextColor.RED));
+                    return true;
+                }
+                if (args.length < 2) {
+                    sender.sendMessage(Component.text("Usage: /dungeon addspawn <name>", NamedTextColor.RED));
+                    return true;
+                }
+                Player p = (Player) sender;
+                manager.addSpawn(args[1], p.getLocation());
+                sender.sendMessage(Component.text("Spawn point added to dungeon '" + args[1] + "'!", NamedTextColor.GREEN));
+                manager.saveAll();
+                break;
+
+            case "start":
+                if (args.length < 2) {
+                    sender.sendMessage(Component.text("Usage: /dungeon start <name>", NamedTextColor.RED));
+                    return true;
+                }
+                if (manager.startDungeon(args[1])) {
+                    sender.sendMessage(Component.text("Dungeon '" + args[1] + "' started!", NamedTextColor.GREEN));
+                } else {
+                    sender.sendMessage(Component.text("Failed to start dungeon. Check it exists and has spawn points.", NamedTextColor.RED));
+                }
+                break;
+
+            case "stop":
+                if (args.length < 2) {
+                    sender.sendMessage(Component.text("Usage: /dungeon stop <name>", NamedTextColor.RED));
+                    return true;
+                }
+                if (manager.stopDungeon(args[1])) {
+                    sender.sendMessage(Component.text("Dungeon '" + args[1] + "' stopped!", NamedTextColor.GREEN));
+                } else {
+                    sender.sendMessage(Component.text("Dungeon is not running!", NamedTextColor.RED));
+                }
+                break;
+
+            case "list":
+                if (manager.listDungeons().isEmpty()) {
+                    sender.sendMessage(Component.text("No dungeons found.", NamedTextColor.YELLOW));
+                } else {
+                    sender.sendMessage(Component.text("Dungeons:", NamedTextColor.GOLD));
+                    for (Dungeon d : manager.listDungeons()) {
+                        sender.sendMessage(Component.text("  - " + d.getName() + " (" + d.getSpawns().size() + " spawns)", NamedTextColor.YELLOW));
+                    }
+                }
+                break;
+
+            default:
+                sendHelp(sender);
+                break;
         }
+
+        return true;
+    }
+
+    private void sendHelp(CommandSender sender) {
+        sender.sendMessage(Component.text("=== Dungeon Commands ===", NamedTextColor.GOLD));
+        sender.sendMessage(Component.text("/dungeon create <name> - Create a new dungeon", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/dungeon addspawn <name> - Add spawn point at your location", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/dungeon start <name> - Start a dungeon", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/dungeon stop <name> - Stop a dungeon", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/dungeon list - List all dungeons", NamedTextColor.YELLOW));
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 1) {
+            return Arrays.asList("create", "addspawn", "start", "stop", "list").stream()
+                    .filter(s -> s.startsWith(args[0].toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        if (args.length == 2 && (args[0].equalsIgnoreCase("addspawn") ||
+                                  args[0].equalsIgnoreCase("start") ||
+                                  args[0].equalsIgnoreCase("stop"))) {
+            return manager.listDungeons().stream()
+                    .map(Dungeon::getName)
+                    .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        return new ArrayList<>();
     }
 }
 

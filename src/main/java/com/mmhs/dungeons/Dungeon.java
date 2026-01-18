@@ -1,11 +1,10 @@
 package com.mmhs.dungeons;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 public class Dungeon {
     private final String name;
@@ -19,62 +18,56 @@ public class Dungeon {
         return name;
     }
 
-    public List<Location> getSpawns() {
-        return spawns;
-    }
-
     public void addSpawn(Location loc) {
-        if (loc != null) spawns.add(loc);
+        spawns.add(loc);
     }
 
-    // Serialization helper: convert to a map suitable for YamlConfiguration
+    public List<Location> getSpawns() {
+        return Collections.unmodifiableList(spawns);
+    }
+
     public Map<String, Object> serialize() {
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);
-        List<Map<String, Object>> spawnMaps = new ArrayList<>();
+        List<Map<String, Object>> spawnList = new ArrayList<>();
         for (Location loc : spawns) {
-            if (loc.getWorld() == null) continue;
-            Map<String, Object> lm = new HashMap<>();
-            lm.put("world", loc.getWorld().getName());
-            lm.put("x", loc.getX());
-            lm.put("y", loc.getY());
-            lm.put("z", loc.getZ());
-            lm.put("yaw", loc.getYaw());
-            lm.put("pitch", loc.getPitch());
-            spawnMaps.add(lm);
+            Map<String, Object> locMap = new HashMap<>();
+            if (loc.getWorld() != null) {
+                locMap.put("world", loc.getWorld().getName());
+            }
+            locMap.put("x", loc.getX());
+            locMap.put("y", loc.getY());
+            locMap.put("z", loc.getZ());
+            locMap.put("yaw", loc.getYaw());
+            locMap.put("pitch", loc.getPitch());
+            spawnList.add(locMap);
         }
-        map.put("spawns", spawnMaps);
+        map.put("spawns", spawnList);
         return map;
     }
 
     @SuppressWarnings("unchecked")
-    public static Dungeon deserialize(Map<String, Object> data) {
-        String name = (String) data.get("name");
+    public static Dungeon deserialize(Map<String, Object> map) {
+        String name = (String) map.get("name");
+        if (name == null) return null;
+
         Dungeon d = new Dungeon(name);
-        Object maybeSpawns = data.get("spawns");
-        if (maybeSpawns instanceof List) {
-            for (Object o : (List<Object>) maybeSpawns) {
-                if (!(o instanceof Map)) continue;
-                Map<String, Object> lm = (Map<String, Object>) o;
-                String world = (String) lm.get("world");
-                Object xo = lm.get("x");
-                Object yo = lm.get("y");
-                Object zo = lm.get("z");
-                Object yawO = lm.get("yaw");
-                Object pitchO = lm.get("pitch");
-                if (world == null || xo == null || yo == null || zo == null) continue;
-                try {
-                    double x = ((Number) xo).doubleValue();
-                    double y = ((Number) yo).doubleValue();
-                    double z = ((Number) zo).doubleValue();
-                    float yaw = yawO == null ? 0f : ((Number) yawO).floatValue();
-                    float pitch = pitchO == null ? 0f : ((Number) pitchO).floatValue();
-                    org.bukkit.World w = org.bukkit.Bukkit.getWorld(world);
-                    if (w == null) continue; // world not loaded
-                    Location loc = new Location(w, x, y, z, yaw, pitch);
-                    d.addSpawn(loc);
-                } catch (ClassCastException ignored) {
-                }
+        Object spawnObj = map.get("spawns");
+        if (spawnObj instanceof List) {
+            List<Map<String, Object>> spawnList = (List<Map<String, Object>>) spawnObj;
+            for (Map<String, Object> locMap : spawnList) {
+                String worldName = (String) locMap.get("world");
+                World world = Bukkit.getWorld(worldName);
+                if (world == null) continue;
+
+                double x = ((Number) locMap.get("x")).doubleValue();
+                double y = ((Number) locMap.get("y")).doubleValue();
+                double z = ((Number) locMap.get("z")).doubleValue();
+                float yaw = ((Number) locMap.getOrDefault("yaw", 0)).floatValue();
+                float pitch = ((Number) locMap.getOrDefault("pitch", 0)).floatValue();
+
+                Location loc = new Location(world, x, y, z, yaw, pitch);
+                d.addSpawn(loc);
             }
         }
         return d;

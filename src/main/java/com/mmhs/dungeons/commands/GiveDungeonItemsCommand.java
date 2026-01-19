@@ -16,27 +16,36 @@ public class GiveDungeonItemsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player p)) {
-            sender.sendMessage("Players only.");
             return true;
         }
 
         // Updated to use the new method names
         p.getInventory().addItem(
-                items.soulpiercerI(),
-                items.bulwarkOfResolveI(),
-                items.heroesBroadswordI(),
-                items.nightveilDaggersI(),
-                items.stonewardenAxeI(),
-                items.soulpiercerII(),
-                items.bulwarkOfResolveII(),
-                items.heroesBroadswordII(),
-                items.nightveilDaggersII(),
-                items.stonewardenAxeII(),
-                items.soulpiercerIII(),
-                items.bulwarkOfResolveIII(),
-                items.heroesBroadswordIII(),
-                items.nightveilDaggersIII(),
-                items.stonewardenAxeIII()
+            
+            items.soulpiercerI(),
+            items.soulpiercerII(),
+            items.soulpiercerIII(),
+            
+            items.stonewardenAxeI(),
+            items.stonewardenAxeII(),
+            items.stonewardenAxeIII(),
+            
+            items.nightveilDaggersI(),
+            items.nightveilDaggersII(),
+            items.nightveilDaggersIII(),
+            
+            items.bulwarkOfResolveI(),
+            items.bulwarkOfResolveII(),
+            items.bulwarkOfResolveIII(),
+            
+            items.heroesBroadswordI(),
+            items.heroesBroadswordII(),
+            items.heroesBroadswordIII(),
+            
+            items.crownOfMonstersI(),
+            items.crownOfMonstersII(),
+            items.crownOfMonstersIII()
+
         );
         p.sendMessage("Given all dungeon items.");
         return true;

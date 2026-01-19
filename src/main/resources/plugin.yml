@@ -1,6 +1,6 @@
 name: DungeonsPlugin
 version: '1.0.0'
-main: com.mmhs.dungeons.DungeonsPlugin
+main: com.mmhs.dungeons.core.DungeonsPlugin
 api-version: '1.21'
 author: MMHS
 description: A Minecraft Paper plugin for dungeons

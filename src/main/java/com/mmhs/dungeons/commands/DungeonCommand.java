@@ -1,6 +1,7 @@
 package com.mmhs.dungeons.commands;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,17 +13,19 @@ import com.mmhs.dungeons.core.DungeonManager;
 import com.mmhs.dungeons.core.DungeonsPlugin;
 
 public class DungeonCommand implements CommandExecutor {
-    private final DungeonsPlugin plugin;
     private final DungeonManager manager;
 
     public DungeonCommand(DungeonsPlugin plugin, DungeonManager manager) {
-        this.plugin = plugin;
         this.manager = manager;
     }
 
-    private void send(CommandSender s, String msg) {
-        s.sendMessage(ChatColor.GREEN + "[Dungeons] " + ChatColor.RESET + msg);
-    }
+private void send(CommandSender s, String msg) {
+    s.sendMessage(
+        Component.text("[Dungeons] ", NamedTextColor.GREEN)
+            .append(Component.text(msg, NamedTextColor.WHITE))
+    );
+}
+
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

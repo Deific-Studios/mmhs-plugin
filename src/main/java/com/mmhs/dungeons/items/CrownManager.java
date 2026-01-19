@@ -312,7 +312,7 @@ public class CrownManager {
                 if (text.contains("0/5")) maxSlots = 5;
                 
                 String baseName = text.contains("Mastered") ? "Mastered Essence" : 
-                                 text.contains("Enhanced") ? "Enhanced Essence" : "Monster Essence";
+                                text.contains("Enhanced") ? "Enhanced Essence" : "Monster Essence";
                 
                 lore.set(i, Component.text("• " + baseName + " (" + stored.size() + "/" + maxSlots + ")")
                         .color(NamedTextColor.WHITE)

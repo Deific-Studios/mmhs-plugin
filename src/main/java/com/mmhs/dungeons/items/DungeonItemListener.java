@@ -31,6 +31,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+import org.bukkit.Sound;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -52,7 +53,7 @@ public class DungeonItemListener implements Listener {
     }
 
     /* ========================================
-       RIGHT CLICK ABILITIES
+                RIGHT CLICK ABILITIES
        ======================================== */
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -84,7 +85,7 @@ public class DungeonItemListener implements Listener {
     }
 
     /* ========================================
-       LEFT CLICK ABILITIES
+                    LEFT CLICK ABILITIES
        ======================================== */
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -108,7 +109,7 @@ public class DungeonItemListener implements Listener {
     }
 
     /* ========================================
-       ATTACK ABILITIES
+                    ATTACK ABILITIES
        ======================================== */
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -164,12 +165,12 @@ public class DungeonItemListener implements Listener {
     }
 
     /* ========================================
-       SOULPIERCER ABILITIES
+                SOULPIERCER ABILITIES
        ======================================== */
 
     private void handleSoulpiercerBoost(Player p, int tier) {
         // Cooldown: 2s (T1), 1.5s (T2), 1s (T3)
-        long cooldown = tier == 1 ? 2000 : tier == 2 ? 1500 : 1000;
+        long cooldown = tier == 1 ? 10000 : tier == 2 ? 7500 : 3000;
         
         long now = System.currentTimeMillis();
         Long last = lastSpearBoost.get(p.getUniqueId());
@@ -183,35 +184,37 @@ public class DungeonItemListener implements Listener {
 
         Location playerLoc = p.getLocation();
         Vector direction = playerLoc.getDirection();
-        Vector behind = direction.clone().multiply(-1);
-        
-        double horizontalMag = Math.sqrt(behind.getX() * behind.getX() + behind.getZ() * behind.getZ());
-        double angle = Math.toRadians(25);
-        behind.setY(-horizontalMag * Math.tan(angle));
-        behind.normalize().multiply(tier == 3 ? 2.0 : 1.5); // Tier 3 gets stronger boost
-        
-        Location spawnLoc = playerLoc.clone().add(behind).add(0, 1.0, 0);
-        Entity windCharge = p.getWorld().spawnEntity(spawnLoc, EntityType.WIND_CHARGE);
-        
-        if (windCharge instanceof WindCharge wc) {
-            wc.setVelocity(behind.clone().normalize().multiply(0.1));
-        }
-        
-        p.getWorld().spawnParticle(Particle.CLOUD, spawnLoc, 8, 0.2, 0.2, 0.2, 0.02);
-        
+
+        // Calculate boost velocity based on tier
+        double boostStrength = tier == 1 ? 1.5 : tier == 2 ? 2 : 2.7; // Scales with tier
+        double verticalBoost = tier == 3 ? 0.8 : 0.4; // Tier 3 gets more height
+
+        // Normalize and apply horizontal boost
+        Vector boost = direction.clone().normalize().multiply(boostStrength);
+        boost.setY(verticalBoost); // Add upward component
+
+        // Apply velocity to player
+        p.setVelocity(boost);
+
+        // Visual and sound effects
+        p.getWorld().spawnParticle(Particle.CLOUD, playerLoc.clone().add(0, 1, 0), 20, 0.3, 0.3, 0.3, 0.1);
+        p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, playerLoc.clone().add(0, 1, 0), 5, 0.5, 0.5, 0.5, 0.0);
+        p.playSound(playerLoc, Sound.ENTITY_BREEZE_SHOOT, 1.0f, 1.2f);
+
         // Tier 3: Brief flight effect
-        if (tier == 3) {
-            p.setAllowFlight(true);
-            p.setFlying(true);
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (!p.getGameMode().toString().contains("CREATIVE") && 
-                    !p.getGameMode().toString().contains("SPECTATOR")) {
-                    p.setAllowFlight(false);
-                    p.setFlying(false);
-                }
-            }, 20L); // 1 second of flight
-        }
-    }
+        // if (tier == 3) {
+        //     p.setAllowFlight(true);
+        //     p.setFlying(true);
+        //     Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        //         if (!p.getGameMode().toString().contains("CREATIVE") && 
+        //             !p.getGameMode().toString().contains("SPECTATOR")) {
+        //             p.setAllowFlight(false);
+        //             p.setFlying(false);
+        //         }
+        //     }, 20L); // 1 second of flight
+}
+
+    // }
 
     private void handleSoulpiercerStrike(EntityDamageByEntityEvent event, Player p, LivingEntity victim, int tier) {
         victim.getWorld().spawnParticle(Particle.CLOUD,
@@ -244,7 +247,7 @@ public class DungeonItemListener implements Listener {
     }
 
     /* ========================================
-       NIGHTVEIL DAGGERS ABILITIES
+            NIGHTVEIL DAGGERS ABILITIES
        ======================================== */
 
     private void handleShadowCloak(Player p, int tier) {
@@ -321,7 +324,7 @@ public class DungeonItemListener implements Listener {
     }
 
     /* ========================================
-       HERO'S BROADSWORD ABILITIES
+            HERO'S BROADSWORD ABILITIES
        ======================================== */
 
     private void handleSweepingStrike(EntityDamageByEntityEvent event, Player p, LivingEntity victim, int tier) {
@@ -358,12 +361,12 @@ public class DungeonItemListener implements Listener {
     }
 
     /* ========================================
-       BULWARK OF RESOLVE ABILITIES
+            BULWARK OF RESOLVE ABILITIES
        ======================================== */
 
     private void handleShieldBash(EntityDamageByEntityEvent event, Player victim, LivingEntity attacker, int tier) {
         // Knockback: 1.8x (T1), 2.2x (T2), 2.8x (T3)
-        double knockbackMultiplier = tier == 1 ? 1.8 : tier == 2 ? 2.2 : 2.8;
+        double knockbackMultiplier = tier == 1 ? 1.2 : tier == 2 ? 1.6 : 2;
         
         Vector direction = attacker.getLocation().toVector()
                 .subtract(victim.getLocation().toVector())
@@ -402,7 +405,7 @@ public class DungeonItemListener implements Listener {
 
     private void openCrownGUI(Player p, ItemStack crown) {
         int tier = dungeonItems.getTier(crown);
-        int slots = tier == 1 ? 3 : tier == 2 ? 6 : 9; // 3, 4, or 5 slots
+        int slots = tier == 1 ? 3 : tier == 2 ? 6 : 9; // 3, 6, or 9 slots
         
         Inventory inv = Bukkit.createInventory(
                 new CrownInventoryHolder(null),
@@ -460,8 +463,8 @@ public class DungeonItemListener implements Listener {
         int tier = dungeonItems.getTier(crown);
         int maxSlots = tier == 1 ? 3 : tier == 2 ? 4 : 5;
         
-        // Valid slots: 10, 12, 14, 16, 18 (depending on tier)
-        int[] validSlots = {10, 12, 14, 16, 18};
+        // Middle row slots only
+        int[] validSlots = {10-18};
         int crownSlot = -1;
         for (int i = 0; i < maxSlots && i < validSlots.length; i++) {
             if (slot == validSlots[i]) {
@@ -511,38 +514,38 @@ public class DungeonItemListener implements Listener {
     }
 
     /* ========================================
-       HELPER METHODS
+                    HELPER METHODS
        ======================================== */
 
     private boolean isSoulpiercer(DungeonItems.Id id) {
-        return id == DungeonItems.Id.SOULPIERCER_I || 
-               id == DungeonItems.Id.SOULPIERCER_II || 
-               id == DungeonItems.Id.SOULPIERCER_III;
+        return id == DungeonItems.Id.SOULPIERCER_I ||
+                id == DungeonItems.Id.SOULPIERCER_II ||
+                id == DungeonItems.Id.SOULPIERCER_III;
     }
 
     private boolean isNightveilDaggers(DungeonItems.Id id) {
-        return id == DungeonItems.Id.NIGHTVEIL_DAGGERS_I || 
-               id == DungeonItems.Id.NIGHTVEIL_DAGGERS_II || 
-               id == DungeonItems.Id.NIGHTVEIL_DAGGERS_III;
+        return id == DungeonItems.Id.NIGHTVEIL_DAGGERS_I ||
+                id == DungeonItems.Id.NIGHTVEIL_DAGGERS_II ||
+                id == DungeonItems.Id.NIGHTVEIL_DAGGERS_III;
     }
 
     private boolean isHeroesBroadsword(DungeonItems.Id id) {
-        return id == DungeonItems.Id.HEROES_BROADSWORD_I || 
-               id == DungeonItems.Id.HEROES_BROADSWORD_II || 
-               id == DungeonItems.Id.HEROES_BROADSWORD_III;
+        return id == DungeonItems.Id.HEROES_BROADSWORD_I ||
+                id == DungeonItems.Id.HEROES_BROADSWORD_II ||
+                id == DungeonItems.Id.HEROES_BROADSWORD_III;
     }
 
     private boolean isBulwark(DungeonItems.Id id) {
         if (id == null) return false;
-        return id == DungeonItems.Id.BULWARK_OF_RESOLVE_I || 
-               id == DungeonItems.Id.BULWARK_OF_RESOLVE_II || 
-               id == DungeonItems.Id.BULWARK_OF_RESOLVE_III;
+        return id == DungeonItems.Id.BULWARK_OF_RESOLVE_I ||
+                id == DungeonItems.Id.BULWARK_OF_RESOLVE_II ||
+                id == DungeonItems.Id.BULWARK_OF_RESOLVE_III;
     }
 
     private boolean isCrown(DungeonItems.Id id) {
-        return id == DungeonItems.Id.CROWN_OF_MONSTERS_I || 
-               id == DungeonItems.Id.CROWN_OF_MONSTERS_II || 
-               id == DungeonItems.Id.CROWN_OF_MONSTERS_III;
+        return id == DungeonItems.Id.CROWN_OF_MONSTERS_I ||
+                id == DungeonItems.Id.CROWN_OF_MONSTERS_II ||
+                id == DungeonItems.Id.CROWN_OF_MONSTERS_III;
     }
 
     private String formatMobName(EntityType type) {

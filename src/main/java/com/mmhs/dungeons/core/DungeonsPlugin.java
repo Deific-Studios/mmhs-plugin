@@ -1,11 +1,11 @@
 package com.mmhs.dungeons.core;
 
+import org.bukkit.plugin.java.JavaPlugin;
+
 import com.mmhs.dungeons.commands.DungeonCommand;
 import com.mmhs.dungeons.commands.GiveDungeonItemsCommand;
-import com.mmhs.dungeons.items.CrownManager;
 import com.mmhs.dungeons.items.DungeonItemListener;
 import com.mmhs.dungeons.items.DungeonItems;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public class DungeonsPlugin extends JavaPlugin {
     private DungeonManager dungeonManager;
@@ -13,11 +13,15 @@ public class DungeonsPlugin extends JavaPlugin {
     @Override
 public void onEnable() {
     DungeonItems dungeonItems = new DungeonItems(this);
-    DungeonManager dungeonManager = new DungeonManager(this);
+    this.dungeonManager = new DungeonManager(this);
     
     // Register commands
-    this.getCommand("ditems").setExecutor(new GiveDungeonItemsCommand(dungeonItems));
-    this.getCommand("dungeon").setExecutor(new DungeonCommand(this, dungeonManager));
+    if (this.getCommand("ditems") != null) {
+        this.getCommand("ditems").setExecutor(new GiveDungeonItemsCommand(dungeonItems));
+    }
+    if (this.getCommand("dungeon") != null) {
+        this.getCommand("dungeon").setExecutor(new DungeonCommand(this, dungeonManager));
+    }
     
         //Register listener
     getServer().getPluginManager().registerEvents(

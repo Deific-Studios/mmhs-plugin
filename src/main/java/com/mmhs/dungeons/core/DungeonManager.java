@@ -15,6 +15,9 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+
 public class DungeonManager {
     private final DungeonsPlugin plugin;
     private final Map<String, Dungeon> dungeons = new ConcurrentHashMap<>();
@@ -101,8 +104,8 @@ public class DungeonManager {
                     World w = s.getWorld();
                     if (w == null) continue;
                     for (int i = 0; i < Math.min(3 + wave, 8); i++) {
-                        LivingEntity ent = (LivingEntity) w.spawnEntity(s, EntityType.ZOMBIE);
-                        ent.setCustomName("Dungeon Mob");
+                        LivingEntity ent = (LivingEntity) w.spawnEntity(s, EntityType.ZOMBIE); //add entity type specification
+                        ent.customName(Component.text("Dungeon Mob").color(NamedTextColor.RED));
                         ent.setCustomNameVisible(false);
                     }
                 }

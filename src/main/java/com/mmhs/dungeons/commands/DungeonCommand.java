@@ -1,7 +1,5 @@
 package com.mmhs.dungeons.commands;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -11,6 +9,9 @@ import org.bukkit.entity.Player;
 import com.mmhs.dungeons.core.Dungeon;
 import com.mmhs.dungeons.core.DungeonManager;
 import com.mmhs.dungeons.core.DungeonsPlugin;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 public class DungeonCommand implements CommandExecutor {
     private final DungeonManager manager;

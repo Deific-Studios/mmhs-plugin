@@ -1,9 +1,13 @@
-C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\items\DungeonItems.java
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\core\DungeonManager.java
+C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\generation\PlacedRoom.java
+C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\generation\DungeonGenerator.java
+C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\generation\RoomTemplate.java
+C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\items\DungeonItemListener.java
+C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\commands\GenerateDungeonCommand.java
+C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\items\DungeonItems.java
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\core\DungeonsPlugin.java
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\commands\GiveDungeonItemsCommand.java
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\core\Dungeon.java
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\commands\DungeonCommand.java
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\items\CrownManager.java
-C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\items\DungeonItemListener.java
 C:\Users\evanP\Documents\mmhs-plugin\src\main\java\com\mmhs\dungeons\items\CrownInventoryHolder.java

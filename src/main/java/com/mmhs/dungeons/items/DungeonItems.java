@@ -47,7 +47,9 @@ public final class DungeonItems {
         NIGHTVEIL_DAGGERS_III,
         STONEWARDEN_AXE_III,
         CROWN_OF_MONSTERS_III
+        
     }
+
 
     private final Plugin plugin;
     private final NamespacedKey idKey;
@@ -246,7 +248,7 @@ public final class DungeonItems {
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
         addAttr(meta, Attribute.GENERIC_ATTACK_DAMAGE, 6.0);
-        addAttr(meta, Attribute.GENERIC_ATTACK_SPEED, -0.8);
+        addAttr(meta, Attribute.GENERIC_ATTACK_SPEED, 1);
         addAttr(meta, Attribute.GENERIC_ARMOR, 2.0);
 
         tag(meta, Id.STONEWARDEN_AXE_I, 1);
@@ -286,7 +288,7 @@ public final class DungeonItems {
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
         addAttr(meta, Attribute.GENERIC_ATTACK_DAMAGE, 7.0);
-        addAttr(meta, Attribute.GENERIC_ATTACK_SPEED, -0.7);
+        addAttr(meta, Attribute.GENERIC_ATTACK_SPEED, 1);
         addAttr(meta, Attribute.GENERIC_ARMOR, 4.0);
 
         tag(meta, Id.STONEWARDEN_AXE_II, 2);
@@ -328,7 +330,7 @@ public final class DungeonItems {
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
         addAttr(meta, Attribute.GENERIC_ATTACK_DAMAGE, 8.5);
-        addAttr(meta, Attribute.GENERIC_ATTACK_SPEED, -0.6);
+        addAttr(meta, Attribute.GENERIC_ATTACK_SPEED, 1);
         addAttr(meta, Attribute.GENERIC_ARMOR, 6.0);
 
         tag(meta, Id.STONEWARDEN_AXE_III, 3);

@@ -1,5 +1,5 @@
 name: DungeonsPlugin
-version: '1.0.0'
+version: '1.1.0'
 main: com.mmhs.dungeons.core.DungeonsPlugin
 api-version: '1.21'
 author: MMHS
@@ -14,6 +14,11 @@ commands:
     description: Gives dungeon weapons
     usage: /ditems
     permission: dungeons.admin
+  gendungeon:
+    description: Generate a procedural dungeon from templates
+    usage: /gendungeon <numRooms> [scanRadius]
+    permission: dungeons.generate
+    aliases: [gendung, gdungeon, gd]
 
 permissions:
   dungeons.use:
@@ -21,4 +26,7 @@ permissions:
     default: op
   dungeons.admin:
     description: Allows using /ditems
+    default: op
+  dungeons.generate:
+    description: Allows generating dungeons
     default: op

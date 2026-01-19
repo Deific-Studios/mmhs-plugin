@@ -1,6 +1,5 @@
 package com.mmhs.dungeons.items;
 
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -31,7 +31,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
-import org.bukkit.Sound;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -169,7 +168,7 @@ public class DungeonItemListener implements Listener {
        ======================================== */
 
     private void handleSoulpiercerBoost(Player p, int tier) {
-        // Cooldown: 2s (T1), 1.5s (T2), 1s (T3)
+    
         long cooldown = tier == 1 ? 10000 : tier == 2 ? 7500 : 3000;
         
         long now = System.currentTimeMillis();
@@ -186,7 +185,7 @@ public class DungeonItemListener implements Listener {
         Vector direction = playerLoc.getDirection();
 
         // Calculate boost velocity based on tier
-        double boostStrength = tier == 1 ? 1.5 : tier == 2 ? 2 : 2.7; // Scales with tier
+        double boostStrength = tier == 1 ? 1.5 : tier == 2 ? 2 : 2; // Scales with tier
         double verticalBoost = tier == 3 ? 0.8 : 0.4; // Tier 3 gets more height
 
         // Normalize and apply horizontal boost
@@ -300,7 +299,7 @@ public class DungeonItemListener implements Listener {
             
             // Tier 3: Apply poison
             if (tier == 3) {
-                victim.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 60, 0, false, true));
+                victim.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 60, 1, false, true));
             }
         }
         
@@ -400,7 +399,7 @@ public class DungeonItemListener implements Listener {
     }
 
     /* ========================================
-       CROWN OF MONSTERS GUI
+                CROWN OF MONSTERS GUI
        ======================================== */
 
     private void openCrownGUI(Player p, ItemStack crown) {

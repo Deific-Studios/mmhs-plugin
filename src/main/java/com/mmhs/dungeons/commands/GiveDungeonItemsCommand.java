@@ -1,10 +1,11 @@
 package com.mmhs.dungeons.commands;
 
-import com.mmhs.dungeons.items.DungeonItems;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import com.mmhs.dungeons.items.DungeonItems;
 
 public class GiveDungeonItemsCommand implements CommandExecutor {
     private final DungeonItems items;

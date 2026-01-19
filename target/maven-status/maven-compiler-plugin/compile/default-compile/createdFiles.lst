@@ -1,2 +1,17 @@
+com\mmhs\dungeons\items\DungeonItems$Id.class
+com\mmhs\dungeons\commands\GenerateDungeonCommand.class
+com\mmhs\dungeons\generation\PlacedRoom.class
+com\mmhs\dungeons\core\Dungeon.class
 com\mmhs\dungeons\commands\DungeonCommand.class
+com\mmhs\dungeons\generation\DungeonGenerator$DoorPair.class
+com\mmhs\dungeons\generation\DungeonGenerator.class
+com\mmhs\dungeons\core\DungeonManager$1.class
+com\mmhs\dungeons\items\CrownManager.class
+com\mmhs\dungeons\core\DungeonManager.class
+com\mmhs\dungeons\items\DungeonItems.class
+com\mmhs\dungeons\items\DungeonItemListener.class
+com\mmhs\dungeons\core\DungeonsPlugin.class
 com\mmhs\dungeons\items\CrownManager$1.class
+com\mmhs\dungeons\commands\GiveDungeonItemsCommand.class
+com\mmhs\dungeons\items\CrownInventoryHolder.class
+com\mmhs\dungeons\generation\RoomTemplate.class

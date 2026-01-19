@@ -3,6 +3,7 @@ package com.mmhs.dungeons.core;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mmhs.dungeons.commands.DungeonCommand;
+import com.mmhs.dungeons.commands.GenerateDungeonCommand;
 import com.mmhs.dungeons.commands.GiveDungeonItemsCommand;
 import com.mmhs.dungeons.items.DungeonItemListener;
 import com.mmhs.dungeons.items.DungeonItems;
@@ -22,8 +23,12 @@ public void onEnable() {
     if (this.getCommand("dungeon") != null) {
         this.getCommand("dungeon").setExecutor(new DungeonCommand(this, dungeonManager));
     }
+    // ADD THIS:
+    if (this.getCommand("gendungeon") != null) {
+        this.getCommand("gendungeon").setExecutor(new GenerateDungeonCommand(this));
+    }
     
-        //Register listener
+    // Register listener
     getServer().getPluginManager().registerEvents(
         new DungeonItemListener(dungeonItems, this),
         this
@@ -31,6 +36,7 @@ public void onEnable() {
     
     getLogger().info("MMHSDungeons has been enabled!");
 }
+
 
 
 

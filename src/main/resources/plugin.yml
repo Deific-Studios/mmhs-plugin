@@ -2,7 +2,10 @@ name: DungeonsPlugin
 version: '1.1.0'
 main: com.mmhs.dungeons.core.DungeonsPlugin
 api-version: '1.21'
+<<<<<<< HEAD
 depend: [WorldEdit]
+=======
+>>>>>>> 6bbb4a113b073abc9b3e889ebf500a416a5b1c3c
 author: MMHS
 description: A Minecraft Paper plugin for dungeons
 

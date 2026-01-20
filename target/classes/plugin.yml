@@ -15,11 +15,17 @@ commands:
     description: Gives dungeon weapons
     usage: /ditems
     permission: dungeons.admin
-  gendungeon:
-    description: Generate a procedural dungeon from templates
-    usage: /gendungeon <numRooms> [scanRadius]
-    permission: dungeons.generate
-    aliases: [gendung, gdungeon, gd, dg]
+  w:
+    description: Whisper a player
+    aliases: [msg, whisper, tell, message]
+    usage: /w <player> <message>
+  r:
+    description: Reply to last whisper
+    usage: /r <message>
+  p:
+    description: Party chat
+    aliases: [pc, partychat]
+    usage: /p <message> (or /p to toggle)
 
 permissions:
   dungeons.use:
@@ -28,6 +34,4 @@ permissions:
   dungeons.admin:
     description: Allows using /ditems
     default: op
-  dungeons.generate:
-    description: Allows generating dungeons
-    default: op
+

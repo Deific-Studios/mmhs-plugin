@@ -1,11 +1,8 @@
 package com.mmhs.dungeons.generation;
 
-<<<<<<< HEAD
-import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.regions.Region;
+import com.sk89q.worldedit.regions.Region; // <--- This import is critical
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,25 +17,15 @@ public class PlacedRoom {
         this.origin = origin;
         this.rotation = rotation;
 
-        // --- FIXED COLLISION LOGIC ---
-        // Instead of transforming the region object, we just calculate the new dimensions manually.
         BlockVector3 dims = template.getClipboard().getDimensions();
         
-        int sizeX = dims.getX();
-        int sizeY = dims.getY();
-        int sizeZ = dims.getZ();
+        // Logical Size Swap: If rotated 90 or 270, width becomes length
+        int sizeX = (rotation == 90 || rotation == 270) ? dims.getZ() : dims.getX();
+        int sizeZ = (rotation == 90 || rotation == 270) ? dims.getX() : dims.getZ();
 
-        // If rotated 90 or 270 degrees, swap Width (X) and Length (Z)
-        if (rotation == 90 || rotation == 270) {
-            sizeX = dims.getZ();
-            sizeZ = dims.getX();
-        }
-
-        // Calculate the world bounding box
-        // Since our clipboard origin is at the bottom-min corner (set in Scanner),
-        // the region extends from 'origin' to 'origin + size'.
+        // Calculate the bounding box for collision detection
         BlockVector3 min = origin;
-        BlockVector3 max = origin.add(sizeX - 1, sizeY - 1, sizeZ - 1);
+        BlockVector3 max = origin.add(sizeX - 1, dims.getY() - 1, sizeZ - 1);
         
         this.occupiedRegion = new CuboidRegion(min, max);
     }
@@ -50,75 +37,40 @@ public class PlacedRoom {
 
     public List<DungeonTemplate.DoorInfo> getRotatedDoors() {
         List<DungeonTemplate.DoorInfo> worldDoors = new ArrayList<>();
-        // Create the transform for the door vectors
-        AffineTransform transform = new AffineTransform().rotateY(rotation);
+        BlockVector3 dims = template.getClipboard().getDimensions();
 
         for (DungeonTemplate.DoorInfo door : template.getDoors()) {
-            // Apply rotation to the relative position
-            BlockVector3 rotPos = transform.apply(door.position.toVector3()).toBlockPoint();
-            // Apply rotation to the direction
-            BlockVector3 rotDir = transform.apply(door.direction.toVector3()).toBlockPoint();
+            // 1. Rotate the door position relative to (0,0)
+            BlockVector3 rotPos = rotatePoint(door.position, rotation, dims.getX(), dims.getZ());
             
-            // Add to the room's world origin
-            BlockVector3 worldPos = origin.add(rotPos);
-            
-            worldDoors.add(new DungeonTemplate.DoorInfo(worldPos, rotDir));
+            // 2. Rotate the direction facing
+            BlockVector3 rotDir = rotateDirection(door.direction, rotation);
+
+            // 3. Add to the room's world origin
+            worldDoors.add(new DungeonTemplate.DoorInfo(origin.add(rotPos), rotDir));
         }
         return worldDoors;
     }
-}
-=======
-import java.util.ArrayList;
-import java.util.List;
 
-import org.bukkit.Location;
+    // --- INTERNAL MATH HELPERS ---
+    
+    private BlockVector3 rotatePoint(BlockVector3 p, int rot, int sizeX, int sizeZ) {
+        int x = p.getX(); int y = p.getY(); int z = p.getZ();
+        switch (rot) {
+            case 90:  return BlockVector3.at(-z + sizeZ - 1, y, x);
+            case 180: return BlockVector3.at(sizeX - 1 - x, y, sizeZ - 1 - z);
+            case 270: return BlockVector3.at(z, y, sizeX - 1 - x);
+            default:  return p;
+        }
+    }
 
-import com.mmhs.dungeons.generation.DungeonGenerator.DoorPair;
-
-public class PlacedRoom {
-    public final RoomTemplate template;
-    public final Location worldPosition;
-    public final int rotation;
-    
-    public PlacedRoom(RoomTemplate template, Location worldPosition) {
-        this(template, worldPosition, 0);
-    }
-    
-    public PlacedRoom(RoomTemplate template, Location worldPosition, int rotation) {
-        this.template = template;
-        this.worldPosition = worldPosition;
-        this.rotation = rotation;
-    }
-    
-    public List<DoorPair> getWorldDoorPairs() {
-        List<DoorPair> worldDoors = new ArrayList<>();
-        Location offset = worldPosition.clone().subtract(template.anchor);
-        
-        for (DoorPair door : template.doorPairs) {
-            worldDoors.add(door.offset(offset));
+    private BlockVector3 rotateDirection(BlockVector3 d, int rot) {
+        int x = d.getX(); int z = d.getZ();
+        switch (rot) {
+            case 90:  return BlockVector3.at(-z, 0, x);
+            case 180: return BlockVector3.at(-x, 0, -z);
+            case 270: return BlockVector3.at(z, 0, -x);
+            default:  return d;
         }
-        
-        return worldDoors;
-    }
-    
-    public List<Location> getWorldOutline() {
-        List<Location> worldOutline = new ArrayList<>();
-        Location offset = worldPosition.clone().subtract(template.anchor);
-        
-        for (Location block : template.outline) {
-            worldOutline.add(block.clone().add(offset));
-        }
-        
-        return worldOutline;
-    }
-    
-    // Keep for backward compatibility
-    public List<Location> getWorldDoors() {
-        List<Location> centers = new ArrayList<>();
-        for (DoorPair door : getWorldDoorPairs()) {
-            centers.add(door.center);
-        }
-        return centers;
     }
 }
->>>>>>> 6bbb4a113b073abc9b3e889ebf500a416a5b1c3c

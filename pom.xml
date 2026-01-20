@@ -23,13 +23,10 @@
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
-<<<<<<< HEAD
         <repository>
             <id>enginehub-maven</id>
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
-=======
->>>>>>> 6bbb4a113b073abc9b3e889ebf500a416a5b1c3c
     </repositories>
 
     <dependencies>
@@ -39,7 +36,6 @@
             <version>1.21.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-<<<<<<< HEAD
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
@@ -52,8 +48,6 @@
             <version>7.4.0</version>
             <scope>provided</scope>
         </dependency>
-=======
->>>>>>> 6bbb4a113b073abc9b3e889ebf500a416a5b1c3c
     </dependencies>
 
     <build>
@@ -88,9 +82,4 @@
             </resource>
         </resources>
     </build>
-<<<<<<< HEAD
 </project>
-=======
-</project>
-
->>>>>>> 6bbb4a113b073abc9b3e889ebf500a416a5b1c3c

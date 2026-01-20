@@ -11,7 +11,6 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -26,12 +25,12 @@ public class TemplateScanner {
     }
 
     public List<DungeonTemplate> scan(int radius, int roomHeight) {
-        logger.info("Scanning for templates...");
+        logger.info("[Scanner] Starting scan...");
         List<DungeonTemplate> templates = new ArrayList<>();
         processedBlocks.clear();
 
         List<Location> seeds = findSeeds(radius);
-        logger.info("Found " + seeds.size() + " potential room seeds.");
+        logger.info("[Scanner] Found " + seeds.size() + " floor seeds (Red Concrete).");
 
         int count = 0;
         for (Location seed : seeds) {
@@ -44,14 +43,13 @@ public class TemplateScanner {
             processedBlocks.addAll(floorLayout);
 
             try {
-                // Determine if this is a starter room (Optional logic, default false)
-                boolean isStarter = false; 
-                
+                // Assume first room found is starter, or set manually
+                boolean isStarter = (count == 0); 
                 DungeonTemplate template = captureRoom(floorLayout, count++, roomHeight, isStarter);
                 templates.add(template);
-                logger.info("✓ Captured Room " + template.getId() + " (Doors: " + template.getDoors().size() + ")");
+                logger.info("[Scanner] ✓ Captured " + template.getId() + " with " + template.getDoors().size() + " doors.");
             } catch (Exception e) {
-                logger.warning("Failed to capture room at " + vector + ": " + e.getMessage());
+                logger.warning("[Scanner] Failed to capture room: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -60,10 +58,10 @@ public class TemplateScanner {
 
     private List<Location> findSeeds(int radius) {
         List<Location> seeds = new ArrayList<>();
-        // Scan typical build heights (adjust -60 to 100 as needed for your build world)
+        // Scanning from -60 to 100 Y level
         for (int x = -radius; x <= radius; x++) {
             for (int z = -radius; z <= radius; z++) {
-                for (int y = -60; y <= 60; y++) {
+                for (int y = -60; y <= 100; y++) {
                    if (world.getBlockAt(x, y, z).getType() == Material.RED_CONCRETE) {
                        seeds.add(new Location(world, x, y, z));
                    }
@@ -98,7 +96,7 @@ public class TemplateScanner {
     }
 
     private DungeonTemplate captureRoom(Set<BlockVector3> floor, int id, int height, boolean isStarter) throws Exception {
-        // 1. Calculate Bounds
+        // Calculate Bounds
         int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
         int minY = Integer.MAX_VALUE, maxY = Integer.MIN_VALUE;
         int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
@@ -111,36 +109,43 @@ public class TemplateScanner {
             minZ = Math.min(minZ, v.getBlockZ());
             maxZ = Math.max(maxZ, v.getBlockZ());
         }
-        maxY += height; // Extend up from the floor
+        maxY += height;
 
         BlockVector3 minPoint = BlockVector3.at(minX, minY, minZ);
         BlockVector3 maxPoint = BlockVector3.at(maxX, maxY, maxZ);
         CuboidRegion region = new CuboidRegion(BukkitAdapter.adapt(world), minPoint, maxPoint);
 
-        // 2. Copy to Clipboard (Including Entities!)
+        // Copy to Clipboard
         BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
         clipboard.setOrigin(minPoint); 
 
         try (EditSession session = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(world))) {
-            ForwardExtentCopy copy = new ForwardExtentCopy(
-                session, region, clipboard, region.getMinimumPoint()
-            );
-            // CRITICAL: Ensure we copy entities (Paintings, Item Frames, Mobs)
+            ForwardExtentCopy copy = new ForwardExtentCopy(session, region, clipboard, region.getMinimumPoint());
             copy.setCopyingEntities(true);
             copy.setCopyingBiomes(true);
             Operations.complete(copy);
         }
 
-        // 3. Find Doors (Gold Blocks)
+        // --- SCAN DOORS (Gold Blocks Above Border) ---
         List<DungeonTemplate.DoorInfo> doors = new ArrayList<>();
+        
+        // Scan the volume for Gold Blocks
         for (int x = minX; x <= maxX; x++) {
-            for (int y = minY; y <= maxY; y++) {
+            for (int y = minY; y <= maxY; y++) { // Check up to max height
                 for (int z = minZ; z <= maxZ; z++) {
+                    
                     if (world.getBlockAt(x, y, z).getType() == Material.GOLD_BLOCK) {
-                        BlockVector3 worldPos = BlockVector3.at(x, y, z);
-                        BlockVector3 relPos = worldPos.subtract(minPoint);
-                        BlockVector3 dir = getDoorDirection(worldPos, floor);
-                        doors.add(new DungeonTemplate.DoorInfo(relPos, dir));
+                        // Found a gold block. Now determine direction.
+                        BlockVector3 goldPos = BlockVector3.at(x, y, z);
+                        
+                        // Pass the 'floor' set to help verify inside vs outside
+                        BlockVector3 dir = getDoorDirection(goldPos, floor);
+                        
+                        // Only add if valid direction found
+                        if (!dir.equals(BlockVector3.ZERO)) {
+                            BlockVector3 relPos = goldPos.subtract(minPoint);
+                            doors.add(new DungeonTemplate.DoorInfo(relPos, dir));
+                        }
                     }
                 }
             }
@@ -149,16 +154,26 @@ public class TemplateScanner {
         return new DungeonTemplate("room_" + id, clipboard, doors, isStarter);
     }
 
-    private BlockVector3 getDoorDirection(BlockVector3 doorPos, Set<BlockVector3> floor) {
+    private BlockVector3 getDoorDirection(BlockVector3 goldPos, Set<BlockVector3> floor) {
         int[][] checkDirs = {{1,0}, {-1,0}, {0,1}, {0,-1}};
+        
         for (int[] d : checkDirs) {
-            BlockVector3 neighbor = doorPos.add(d[0], 0, d[1]);
-            // Check the block BENEATH the neighbor (floor level)
-            BlockVector3 floorCheck = neighbor.withY(doorPos.getBlockY() - 1);
+            // Check the block neighbor
+            BlockVector3 neighbor = goldPos.add(d[0], 0, d[1]);
+            
+            // Check BENEATH the neighbor (Y-1)
+            // Since Gold is ABOVE the border, the floor should be at GoldY - 1.
+            BlockVector3 floorCheck = neighbor.withY(goldPos.getBlockY() - 1);
+            
+            // Logic:
+            // IF floorCheck is NOT in the 'floor' set -> It implies "Outside" / "Void"
+            // THEN this direction is the way OUT of the room.
             if (!floor.contains(floorCheck)) {
-                return BlockVector3.at(d[0], 0, d[1]);
+                 return BlockVector3.at(d[0], 0, d[1]);
             }
         }
-        return BlockVector3.at(0, 0, 1); 
+        
+        // Return ZERO if we couldn't determine (e.g., gold block in middle of room)
+        return BlockVector3.ZERO; 
     }
 }

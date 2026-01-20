@@ -5,6 +5,7 @@ import com.mmhs.dungeons.generation.DungeonGenerator;
 import com.mmhs.dungeons.generation.DungeonTemplate;
 import com.mmhs.dungeons.generation.PlacedRoom;
 import com.mmhs.dungeons.generation.TemplateScanner;
+
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
@@ -13,6 +14,7 @@ import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import com.sk89q.worldedit.math.BlockVector3;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -23,6 +25,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 public class GenerateDungeonCommand implements CommandExecutor {
 
@@ -95,12 +99,16 @@ public class GenerateDungeonCommand implements CommandExecutor {
     /**
      * The new WorldEdit-based build method
      */
+    // ... imports ...
+// (Keep your imports, add java.util.HashSet and Set)
+
     private void buildDungeon(List<PlacedRoom> rooms, org.bukkit.World world) {
-        // Create a WorldEdit EditSession (handles block changes efficiently)
         try (EditSession session = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(world))) {
             
+            // Track where we placed doors so we can clear them later
+            Set<BlockVector3> doorLocations = new HashSet<>();
+
             for (PlacedRoom room : rooms) {
-                // Prepare the clipboard
                 ClipboardHolder holder = new ClipboardHolder(room.getTemplate().getClipboard());
 
                 // Apply the rotation (stored in PlacedRoom)
@@ -108,28 +116,38 @@ public class GenerateDungeonCommand implements CommandExecutor {
                 holder.setTransform(holder.getTransform().combine(transform));
 
                 try {
-                    // Create the Paste Operation
                     Operation operation = holder
                             .createPaste(session)
-                            .to(room.getOrigin()) // Paste at the calculated world origin
-                            .ignoreAirBlocks(false) // Paste AIR to clear out underground stone/dirt
+                            .to(room.getOrigin())
+                            .ignoreAirBlocks(false) 
                             .build();
-
-                    // Execute paste
                     Operations.complete(operation);
                     
+                    // Collect world positions of all doors in this room
+                    for(DungeonTemplate.DoorInfo door : room.getRotatedDoors()) {
+                        doorLocations.add(door.position);
+                    }
+
                 } catch (WorldEditException e) {
-                    plugin.getLogger().severe("Failed to paste room " + room.getTemplate().getId());
                     e.printStackTrace();
                 }
             }
             
-            // Note: Since 'session' is in a try-with-resources, 
-            // the changes are automatically flushed to the world here.
+            // === CLEANUP PHASE ===
+            // 1. Iterate through all potential door locations
+            // 2. If it is a Gold Block, delete it (AIR)
+            // This handles the "Overlapping" issue perfectly.
+            
+            for (BlockVector3 doorPos : doorLocations) {
+                // Check if it's currently a gold block (it should be, from the paste)
+                if (session.getBlock(doorPos).getBlockType().getMaterial().toString().contains("GOLD_BLOCK")) {
+                     // Set to AIR
+                    session.setBlock(doorPos, com.sk89q.worldedit.world.block.BlockTypes.AIR.getDefaultState());
+                }
+            }
             
         } catch (Exception e) {
-             plugin.getLogger().severe("Critical WorldEdit error:");
-             e.printStackTrace();
+            plugin.getLogger().severe("Critical WorldEdit error:");
+            e.printStackTrace();
         }
     }
-}

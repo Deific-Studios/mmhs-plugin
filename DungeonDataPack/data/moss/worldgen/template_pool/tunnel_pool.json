@@ -1,0 +1,15 @@
+{
+  "name": "moss:tunnel_pool",
+  "fallback": "moss:boss_pool",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "moss:connector",
+        "processors": "minecraft:empty",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

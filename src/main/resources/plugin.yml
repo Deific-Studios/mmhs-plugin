@@ -29,6 +29,11 @@ commands:
   party:
     description: Manage parties
     usage: /party <create|invite|join|leave> [args]
+  summonboss:
+    description: Spawn a custom dungeon boss
+    usage: /summonboss <type>
+    permission: dungeons.admin
+    aliases: [sb]
 
 permissions:
   dungeons.use:

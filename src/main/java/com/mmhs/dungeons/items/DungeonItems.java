@@ -33,7 +33,9 @@
                 // Materials
                 MAT_FRAGMENT, MAT_ASCENSION,
                 MAT_STORM, MAT_PLATING, MAT_SHADOW,
-                MAT_GOLEM, MAT_HILT, MAT_GOLD
+                MAT_GOLEM, MAT_HILT, MAT_GOLD, RELIC_FORGOTTEN, 
+                CORE_ABYSSAL, LOOT_MYTHIC, ESSENCE_GREATER, 
+                SHARD_RELIC, GEAR_STORM
         }
 
         private final Plugin plugin;
@@ -94,10 +96,12 @@
         ======================================== */
 
         // --- SOULPIERCER (Weak base, relied on abilities) ---
-    // Tries to use Diamond Spear, defaults to Trident if not found
+        // Tries to use Diamond Spear, defaults to Trident if not found
         private Material getSpearMaterial() {
-                Material mat = Material.matchMaterial("DIAMOND_SPEAR");
-                return (mat != null) ? mat : Material.TRIDENT;
+        // getMaterial is strict. It checks the current version ONLY.
+        // If "DIAMOND_SPEAR" doesn't exist, it returns null immediately without loading legacy data.
+        Material mat = Material.getMaterial("DIAMOND_SPEAR"); 
+        return (mat != null) ? mat : Material.TRIDENT;
         }
 
         public ItemStack soulpiercerI() {
@@ -176,7 +180,12 @@
         public ItemStack golemCore() { return createMaterial(Material.HEART_OF_THE_SEA, "Golem Core", "The beating heart of a stone construct.", Id.MAT_GOLEM); }
         public ItemStack heroHilt() { return createMaterial(Material.TRIAL_KEY, "Hero's Hilt", "The broken handle of a legendary blade.", Id.MAT_HILT); }
         public ItemStack cursedGold() { return createMaterial(Material.GOLD_INGOT, "Cursed Gold", "Gold that feels cold to the touch.", Id.MAT_GOLD); }
-
+        public ItemStack forgottenRelic() { return createMaterial(Material.TOTEM_OF_UNDYING, "Forgotten Relic", "Pulses with ancient authority.", Id.RELIC_FORGOTTEN); }
+        public ItemStack bossCore() { return createMaterial(Material.NETHER_STAR, "Abyssal Core", "Cold to the touch.", Id.CORE_ABYSSAL); }
+        public ItemStack mythicLoot() { return createMaterial(Material.ENDER_EYE, "Mythic Cache", "Contains unknown power.", Id.LOOT_MYTHIC); }
+        public ItemStack greaterEssence() { return createMaterial(Material.DRAGON_BREATH, "Greater Essence", "Concentrated magic.", Id.ESSENCE_GREATER); }
+        public ItemStack relicShard() { return createMaterial(Material.AMETHYST_SHARD, "Relic Shard", "Fragment of a storm.", Id.SHARD_RELIC); }
+        public ItemStack stormComponent() { return createMaterial(Material.BREEZE_ROD, "Storm Component", "Sparks with electricity.", Id.GEAR_STORM); }
         /* ========================================
         INTERNAL HELPERS
         ======================================== */

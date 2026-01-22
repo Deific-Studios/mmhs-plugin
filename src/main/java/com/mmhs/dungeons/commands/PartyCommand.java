@@ -22,7 +22,7 @@ public class PartyCommand implements CommandExecutor {
         if (!(sender instanceof Player player)) return true;
 
         if (args.length == 0) {
-            player.sendMessage(Component.text("Usage: /party <create|invite|join|leave>").color(NamedTextColor.RED));
+            player.sendMessage(Component.text("Usage: /party <create|invite|join|leave|list>").color(NamedTextColor.RED));
             return true;
         }
 
@@ -48,6 +48,9 @@ public class PartyCommand implements CommandExecutor {
             case "leave":
             case "disband":
                 partyManager.disband(player);
+                break;
+            case "list":
+                partyManager.getOnlineMembers(player);
                 break;
             default:
                 player.sendMessage(Component.text("Unknown subcommand.").color(NamedTextColor.RED));

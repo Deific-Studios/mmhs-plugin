@@ -1,0 +1,15 @@
+{
+  "name": "moss:start_pool",
+  "fallback": "moss:tunnel_pool",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "moss:starter",
+        "processors": "minecraft:empty",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

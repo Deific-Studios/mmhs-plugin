@@ -112,6 +112,10 @@ public class DungeonBossManager {
         entity.getEquipment().setLeggingsDropChance(0f);
         entity.getEquipment().setBootsDropChance(0f);
     }
+    public boolean isBoss(LivingEntity entity) {
+        if (entity == null) return false;
+        return entity.getPersistentDataContainer().has(bossKey, PersistentDataType.BYTE);
+    }
 
     private ItemStack colorArmor(Material mat, Color color) {
         ItemStack item = new ItemStack(mat);

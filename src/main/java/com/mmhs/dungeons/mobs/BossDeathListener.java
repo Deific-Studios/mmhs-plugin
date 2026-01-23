@@ -1,98 +1,80 @@
 package com.mmhs.dungeons.mobs;
 
+import com.mmhs.dungeons.core.DungeonInstanceManager;
+import com.mmhs.dungeons.core.DungeonsPlugin;
+import com.mmhs.dungeons.core.PartyManager;
 import com.mmhs.dungeons.core.ProgressionManager;
-import com.mmhs.dungeons.items.DungeonItems;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.List;
 
 public class BossDeathListener implements Listener {
 
-    private final DungeonBossManager bossManager;
-    private final DungeonItems dungeonItems;
+    private final DungeonsPlugin plugin;
+    private final PartyManager partyManager;
     private final ProgressionManager progressionManager;
+    private final DungeonInstanceManager instanceManager;
+    private final DungeonBossManager bossManager;
 
-    public BossDeathListener(DungeonBossManager bossManager, DungeonItems dungeonItems, ProgressionManager progressionManager) {
-        this.bossManager = bossManager;
-        this.dungeonItems = dungeonItems;
+    // Updated Constructor to accept ALL managers
+    public BossDeathListener(DungeonsPlugin plugin, PartyManager partyManager, ProgressionManager progressionManager, DungeonInstanceManager instanceManager, DungeonBossManager bossManager) {
+        this.plugin = plugin;
+        this.partyManager = partyManager;
         this.progressionManager = progressionManager;
+        this.instanceManager = instanceManager;
+        this.bossManager = bossManager;
     }
 
     @EventHandler
     public void onBossDeath(EntityDeathEvent event) {
-        LivingEntity entity = event.getEntity();
-        
-        // 1. Check if this is a custom boss
-        BossType type = bossManager.getBossType(entity);
-        if (type == null) return;
+        // 1. Check if the dead entity is a Custom Boss
+        if (!bossManager.isBoss(event.getEntity())) return;
 
-        // 2. Handle Drops
-        event.getDrops().clear();
-        event.setDroppedExp(type == BossType.THE_ABYSSAL_OVERLORD ? 5000 : 1000);
+        // 2. Get the killer (Player)
+        Player killer = event.getEntity().getKiller();
+        if (killer == null) return; // If died to lava/cactus, ignore
 
-        // Unique Drop
-        ItemStack uniqueDrop = dungeonItems.getItemById(type.dropId);
-        if (uniqueDrop != null) {
-            event.getDrops().add(uniqueDrop);
-        }
-        
-        // Fragments (Scaling amount)
-        ItemStack fragments = dungeonItems.dungeonFragment();
-        int fragCount = 3 + (int)(Math.random() * 3); // 3-6 default
-        if (type == BossType.THE_FORGOTTEN_KING) fragCount = 6 + (int)(Math.random() * 4);
-        if (type == BossType.THE_ABYSSAL_OVERLORD) fragCount = 10 + (int)(Math.random() * 10);
-        
-        fragments.setAmount(fragCount);
-        event.getDrops().add(fragments);
+        // 3. Get the Party
+        List<Player> party = partyManager.getOnlineMembers(killer);
 
-        // 3. Global Announcement
-        Bukkit.broadcast(
-            Component.text("☠ The " + type.displayName + " has been slain!")
-            .color(NamedTextColor.GOLD)
-        );
-        entity.getWorld().playSound(entity.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f);
+        // 4. Handle Victory for the whole party
+        for (Player member : party) {
+            // A. Unlock Next Tier
+            // Assuming the boss tier is stored or mapped. For now, we increment blindly or check current dungeon type.
+            // (You can refine this later to check specific boss names)
+            int currentTier = progressionManager.getUnlockedTier(member);
+            progressionManager.completeTier(member, currentTier);
 
-        // 4. UNLOCK PROGRESSION
-        // Map Boss Type to Tier Cleared
-        int tierCleared = 0;
-        
-        // Tier 1 Bosses -> Unlocks Tier 2
-        if (type == BossType.TEMPEST_CONSTRUCT || type == BossType.STONE_COLOSSUS || type == BossType.THE_STORMBOUND_KNIGHT) {
-            tierCleared = 1; 
-        }
-        // Tier 2 Boss -> Unlocks Tier 3
-        else if (type == BossType.THE_FORGOTTEN_KING) {
-            tierCleared = 2;
-        }
-        // Tier 3 Boss -> Completion (Maybe unlock prestige later?)
-        else if (type == BossType.THE_ABYSSAL_OVERLORD) {
-            tierCleared = 3;
+            // B. Victory Effects
+            member.playSound(member.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f);
+            member.sendTitlePart(net.kyori.adventure.title.TitlePart.TITLE, Component.text("VICTORY!").color(NamedTextColor.GOLD));
+            member.sendTitlePart(net.kyori.adventure.title.TitlePart.SUBTITLE, Component.text("Teleporting to Dungeon Hub in 10s...").color(NamedTextColor.GREEN));
+            
+            // C. Heal
+            member.setHealth(20);
+            member.setFoodLevel(20);
         }
 
-        if (tierCleared > 0) {
-            // Reward all players in the arena (Radius check is safer than Party check in case of disconnects)
-            for (Player p : entity.getLocation().getNearbyPlayers(100)) {
-                
-                int oldProgress = progressionManager.getUnlockedTier(p);
-                progressionManager.completeTier(p, tierCleared);
-                int newProgress = progressionManager.getUnlockedTier(p);
-
-                // Only send the "Unlocked" message if they actually gained a new tier
-                if (newProgress > oldProgress && newProgress < 3) {
-                    p.sendMessage(Component.text("--------------------------------").color(NamedTextColor.GOLD));
-                    p.sendMessage(Component.text("   DUNGEON CLEARED!").color(NamedTextColor.GREEN).decorate(net.kyori.adventure.text.format.TextDecoration.BOLD));
-                    p.sendMessage(Component.text("   Tier " + (tierCleared + 1) + " Unlocked!").color(NamedTextColor.YELLOW));
-                    p.sendMessage(Component.text("--------------------------------").color(NamedTextColor.GOLD));
-                    p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f);
+        // 5. Teleport Out Sequence (10 Seconds Delay)
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player member : party) {
+                    // Check if they are still online
+                    if (member.isOnline()) {
+                        member.teleport(Bukkit.getWorlds().get(0).getSpawnLocation()); // Send to main world spawn
+                        member.sendMessage(Component.text("Dungeon instance closed.").color(NamedTextColor.GRAY));
+                    }
                 }
             }
-        }
+        }.runTaskLater(plugin, 200L); // 200 Ticks = 10 Seconds
     }
 }

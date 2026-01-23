@@ -1,6 +1,7 @@
 package com.mmhs.dungeons.gui;
 
 import com.mmhs.dungeons.core.DungeonInstanceManager;
+import com.mmhs.dungeons.core.DungeonType;
 import com.mmhs.dungeons.core.ProgressionManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -26,12 +27,11 @@ public class DungeonGUIListener implements Listener {
     @EventHandler
     public void onGuiClick(InventoryClickEvent event) {
         if (!(event.getInventory().getHolder() instanceof DungeonGUI gui)) return;
-        event.setCancelled(true); // Stop taking items
+        event.setCancelled(true); 
         
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (event.getCurrentItem() == null) return;
 
-        // Logic split based on which screen we are on
         if (!gui.isDifficultySelection()) {
             handleDungeonSelect(player, event.getSlot());
         } else {
@@ -40,9 +40,8 @@ public class DungeonGUIListener implements Listener {
     }
 
     private void handleDungeonSelect(Player p, int slot) {
-        if (slot == 11) { // The Catacombs
+        if (slot == 11) { // The Catacombs (Moss)
             p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
-            // Open Difficulty Menu
             p.openInventory(new DungeonGUI(progressionManager, p).getInventory());
         } else if (slot == 15) {
             p.sendMessage(Component.text("This dungeon is coming soon!").color(NamedTextColor.RED));
@@ -51,22 +50,27 @@ public class DungeonGUIListener implements Listener {
     }
 
     private void handleDifficultySelect(Player p, int slot) {
-        int tier = -1;
-        if (slot == 11) tier = 1;
-        if (slot == 13) tier = 2;
-        if (slot == 15) tier = 3;
+        // Map slots to Dungeon Types
+        DungeonType selectedType = null;
+        
+        if (slot == 11) selectedType = DungeonType.MOSS;     // Tier 1
+        if (slot == 13) selectedType = DungeonType.LAB;      // Tier 2
+        if (slot == 15) selectedType = DungeonType.DEEP_DARK; // Tier 3
         
         if (slot == 22) { // Back button
             p.openInventory(new DungeonGUI(progressionManager).getInventory());
             return;
         }
 
-        if (tier != -1) {
-            if (progressionManager.canAccess(p, tier)) {
+        if (selectedType != null) {
+            // Check if player has unlocked this tier
+            if (progressionManager.canAccess(p, selectedType.tier)) {
                 p.closeInventory();
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 0.5f);
-                // START THE DUNGEON
-                instanceManager.startDungeon(p, tier);
+                
+                // FIXED LINE: Now sends the Enum (selectedType) instead of just a number
+                instanceManager.startDungeon(p, selectedType);
+                
             } else {
                 p.sendMessage(Component.text("You must complete the previous tier first!").color(NamedTextColor.RED));
                 p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);

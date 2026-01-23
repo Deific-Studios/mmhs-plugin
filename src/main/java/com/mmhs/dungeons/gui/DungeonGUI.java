@@ -14,6 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class DungeonGUI implements InventoryHolder {
 
@@ -43,14 +44,14 @@ public class DungeonGUI implements InventoryHolder {
         // Slot 11: The Catacombs (Starter)
         ItemStack icon = new ItemStack(Material.WITHER_SKELETON_SKULL);
         ItemMeta meta = icon.getItemMeta();
-        meta.displayName(Component.text("The Catacombs").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true));
+        meta.displayName(Component.text("Moss Dungeon").color(NamedTextColor.RED).decoration(TextDecoration.BOLD, true));
         meta.lore(List.of(
             Component.text("The ancient crypts beneath the city.").color(NamedTextColor.GRAY),
             Component.text(""),
             Component.text("▶ Click to Select").color(NamedTextColor.YELLOW)
         ));
         icon.setItemMeta(meta);
-        inventory.setItem(11, icon); // Center-ish
+        inventory.setItem(11, icon);
 
         // Slot 15: Coming Soon
         ItemStack locked = new ItemStack(Material.GRAY_DYE);
@@ -92,7 +93,7 @@ public class DungeonGUI implements InventoryHolder {
 
         meta.displayName(Component.text("Tier " + tier + ": " + name).color(color).decoration(TextDecoration.BOLD, true).decoration(TextDecoration.ITALIC, false));
         
-        List<Component> lore = new java.util.ArrayList<>();
+        List<Component> lore = new ArrayList<>();
         lore.add(Component.text(""));
         if (unlocked) {
             lore.add(Component.text("Rewards:").color(NamedTextColor.GRAY));

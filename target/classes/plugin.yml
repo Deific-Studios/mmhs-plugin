@@ -1,5 +1,5 @@
 name: DungeonsPlugin
-version: '1.1.0'
+version: '2.0.0'
 main: com.mmhs.dungeons.core.DungeonsPlugin
 api-version: '1.21'
 depend: [WorldEdit]
@@ -34,6 +34,14 @@ commands:
     usage: /summonboss <type>
     permission: dungeons.admin
     aliases: [sb]
+  rambar:
+    description: Toggles the RAM usage bossbar
+    usage: /rambar
+    permission: dungeons.admin
+  spawndm:
+    description: Spawns the Dungeon Master NPC
+    usage: /spawndm
+    permission: dungeons.admin
 
 permissions:
   dungeons.use:

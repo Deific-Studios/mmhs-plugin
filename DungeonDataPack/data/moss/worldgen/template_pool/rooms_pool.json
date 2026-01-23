@@ -1,6 +1,6 @@
 {
   "name": "moss:rooms_pool",
-  "fallback": "minecraft:boss_pool",
+  "fallback": "moss:boss_pool",
   "elements": [
     {
       "weight": 25,
@@ -48,19 +48,10 @@
       }
     },
     {
-      "weight": 15,
+      "weight": 10,
       "element": {
         "element_type": "minecraft:single_pool_element",
         "location": "moss:hall",
-        "processors": "minecraft:empty",
-        "projection": "rigid"
-      }
-    },
-    {
-      "weight": 1,
-      "element": {
-        "element_type": "minecraft:single_pool_element",
-        "location": "moss:boss",
         "processors": "minecraft:empty",
         "projection": "rigid"
       }
@@ -73,16 +64,8 @@
         "processors": "minecraft:empty",
         "projection": "rigid"
       }
-    },
-    {
-      "weight": 100,
-      "element": {
-        "element_type": "minecraft:single_pool_element",
-        "location": "moss:connector",
-        "processors": "minecraft:empty",
-        "projection": "rigid"
-      }
     }
+
 
   ]
 }
